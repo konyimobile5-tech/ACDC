@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="my" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USB 5.1V Bypass Capacitor Animation - AC/DC Filtering</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: '#3b82f6',
+                            cyan: '#06b6d4',
+                            red: '#ef4444',
+                            green: '#10b981',
+                            amber: '#f59e0b',
+                            purple: '#a855f7',
+                            dark: '#0b0f19'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Padauk', 'Noto Sans Myanmar', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Padauk:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Inter', 'Padauk', 'Noto Sans Myanmar', sans-serif;
+            user-select: none;
+            background-color: #070a12;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 380px;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between">
+
+    <!-- Header Section -->
+    <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold text-xl shadow-lg shadow-blue-500/10">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-300 bg-clip-text text-transparent">
+                        USB 5.1V Bypass Capacitor Simulation
+                    </h1>
+                    <p class="text-xs text-slate-400">
+                        Capacitor မှ AC Noise လှိုင်းများကို GND သို့ စွန့်ထုတ်၍ 5.1V DC သန့်သန့် ထုတ်ပေးပုံ သရုပ်ပြချက်
+                    </p>
+                </div>
+            </div>
+
+            <!-- Quick Status Indicators -->
+            <div class="flex items-center space-x-3 text-xs">
+                <div class="flex items-center space-x-2 bg-slate-950/80 px-3 py-1.5 rounded-lg border border-slate-800">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-slate-300 font-medium">Input Voltage: <span id="headerVIn" class="text-cyan-400 font-mono font-bold">5.10 V (DC)</span></span>
+                </div>
+                <div class="flex items-center space-x-2 bg-slate-950/80 px-3 py-1.5 rounded-lg border border-slate-800">
+                    <span id="capStatusIndicator" class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                    <span class="text-slate-300 font-medium">Capacitor: <span id="capStatusText" class="text-emerald-400 font-bold">ON (10µF)</span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="max-w-7xl mx-auto w-full px-4 py-4 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+        <!-- Left Column: Circuit Canvas & Interactive Controls (8 cols) -->
+        <div class="lg:col-span-8 flex flex-col space-y-4">
+            
+            <!-- Main Circuit Simulation Card -->
+            <div class="relative bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+                <!-- Status Top Toolbar -->
+                <div class="px-4 py-2.5 bg-slate-950/80 border-b border-slate-800 flex flex-wrap justify-between items-center text-xs gap-2">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-microchip text-cyan-400"></i>
+                        <span class="font-bold text-slate-200">လျှပ်စစ်ပတ်လမ်း သရုပ်ပြပုံ (Circuit Diagram)</span>
+                    </div>
+                    <div class="flex items-center space-x-4 text-[11px]">
+                        <div class="flex items-center space-x-1.5">
+                            <span class="w-3 h-3 rounded-full bg-cyan-400 inline-block shadow-sm shadow-cyan-500"></span>
+                            <span class="text-slate-300">DC Current (5.1V)</span>
+                        </div>
+                        <div class="flex items-center space-x-1.5">
+                            <span class="w-3 h-3 rounded-full bg-red-500 inline-block shadow-sm shadow-red-500"></span>
+                            <span class="text-slate-300">AC Noise / Ripple</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Interactive Circuit Canvas Container -->
+                <div class="canvas-container bg-slate-950/90 flex items-center justify-center">
+                    <canvas id="circuitCanvas"></canvas>
+                </div>
+
+                <!-- Operating Mode Selection Buttons -->
+                <div class="p-3 bg-slate-900 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <button id="btnModeDC" onclick="setMode('dc')" class="flex items-center justify-center space-x-2 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all duration-200 bg-cyan-500/10 border-cyan-500/60 text-cyan-300 hover:bg-cyan-500/20 shadow-lg shadow-cyan-500/10">
+                        <i class="fa-solid fa-minus text-cyan-400"></i>
+                        <span>1. DC Only (DC သီးသန့်)</span>
+                    </button>
+                    <button id="btnModeAC" onclick="setMode('ac')" class="flex items-center justify-center space-x-2 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all duration-200 bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200 hover:bg-slate-750">
+                        <i class="fa-solid fa-wave-square text-red-400"></i>
+                        <span>2. AC Noise (AC သီးသန့်)</span>
+                    </button>
+                    <button id="btnModeCombined" onclick="setMode('combined')" class="flex items-center justify-center space-x-2 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all duration-200 bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200 hover:bg-slate-750">
+                        <i class="fa-solid fa-layer-group text-amber-400"></i>
+                        <span>3. DC + AC (လက်တွေ့ အခြေအနေ)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Controls Panel & Parameter Sliders -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                    <div class="flex items-center space-x-2">
+                        <button id="btnPlayPause" onclick="togglePlay()" class="w-10 h-10 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold flex items-center justify-center transition shadow-lg shadow-blue-600/30">
+                            <i id="playIcon" class="fa-solid fa-pause"></i>
+                        </button>
+                        <button onclick="resetSimulation()" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 flex items-center justify-center transition" title="Reset Simulation">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </button>
+                        <div class="pl-2">
+                            <span class="text-[11px] text-slate-400 block">Simulation Status</span>
+                            <span id="simStatusText" class="text-xs font-bold text-emerald-400">Running / ပတ်စီးနေသည်</span>
+                        </div>
+                    </div>
+
+                    <!-- Capacitor Toggle Switch -->
+                    <div>
+                        <button id="btnToggleCap" onclick="toggleCapacitor()" class="px-4 py-2 rounded-xl text-xs font-bold border transition-all duration-200 bg-emerald-500/10 border-emerald-500/50 text-emerald-300 hover:bg-emerald-500/20 shadow-md">
+                            <i class="fa-solid fa-power-off mr-1.5"></i>
+                            Capacitor (ကွန်ဒန်ဆာ): <span id="capToggleState" class="text-emerald-400">ON (တပ်ဆင်ထား)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sliders Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                    <!-- Speed Slider -->
+                    <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-1.5">
+                        <div class="flex justify-between items-center text-slate-300 font-medium">
+                            <span><i class="fa-solid fa-gauge-high text-blue-400 mr-1"></i> မြန်နှုန်း (Speed):</span>
+                            <span id="valSpeed" class="text-blue-400 font-mono font-bold">1.0x</span>
+                        </div>
+                        <input type="range" id="sliderSpeed" min="0.2" max="2.5" step="0.1" value="1.0" oninput="updateSliders()" class="w-full accent-blue-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer">
+                    </div>
+
+                    <!-- Noise Amplitude Slider -->
+                    <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-1.5">
+                        <div class="flex justify-between items-center text-slate-300 font-medium">
+                            <span><i class="fa-solid fa-chart-line text-red-400 mr-1"></i> AC Ripple Noise:</span>
+                            <span id="valNoise" class="text-red-400 font-mono font-bold">±0.80 V</span>
+                        </div>
+                        <input type="range" id="sliderNoise" min="0.1" max="2.0" step="0.1" value="0.8" oninput="updateSliders()" class="w-full accent-red-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer">
+                    </div>
+
+                    <!-- Frequency Slider -->
+                    <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-1.5">
+                        <div class="flex justify-between items-center text-slate-300 font-medium">
+                            <span><i class="fa-solid fa-wave-square text-amber-400 mr-1"></i> Frequency ($f$):</span>
+                            <span id="valFreq" class="text-amber-400 font-mono font-bold">100 kHz</span>
+                        </div>
+                        <input type="range" id="sliderFreq" min="20" max="400" step="10" value="100" oninput="updateSliders()" class="w-full accent-amber-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Oscilloscope & Burmese Explanations (4 cols) -->
+        <div class="lg:col-span-4 flex flex-col space-y-4">
+            
+            <!-- Real-time Oscilloscope Viewport -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <h2 class="text-xs sm:text-sm font-bold text-slate-200 flex items-center">
+                        <i class="fa-solid fa-desktop text-emerald-400 mr-2"></i>
+                        Live Oscilloscope (လှိုင်းတိုင်းကိရိယာ)
+                    </h2>
+                    <span class="text-[10px] font-mono bg-slate-800 text-emerald-400 px-2 py-0.5 rounded border border-slate-700">CH1 & CH2</span>
+                </div>
+
+                <!-- Scope Screen Canvas Container -->
+                <div class="relative w-full h-[180px] bg-slate-950 rounded-xl border border-slate-800 overflow-hidden">
+                    <canvas id="scopeCanvas"></canvas>
+                </div>
+
+                <!-- Scope Dynamic Voltage Indicators -->
+                <div class="grid grid-cols-2 gap-2 text-[11px]">
+                    <div class="bg-slate-950/90 p-2 rounded-lg border border-slate-800">
+                        <div class="text-slate-400 flex items-center">
+                            <span class="w-2 h-2 rounded-full bg-amber-400 inline-block mr-1.5"></span> Input ($V_{in}$)
+                        </div>
+                        <div id="scopeVinText" class="font-mono font-bold text-amber-300 mt-0.5">5.10 V (Ripple)</div>
+                    </div>
+                    <div class="bg-slate-950/90 p-2 rounded-lg border border-slate-800">
+                        <div class="text-slate-400 flex items-center">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block mr-1.5"></span> Output ($V_{out}$)
+                        </div>
+                        <div id="scopeVoutText" class="font-mono font-bold text-cyan-300 mt-0.5">5.10 V Clean DC</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Theory Explanation Box in Burmese -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3 flex-grow">
+                <h2 class="text-xs sm:text-sm font-bold text-slate-200 flex items-center border-b border-slate-800 pb-2">
+                    <i class="fa-solid fa-graduation-cap text-cyan-400 mr-2"></i>
+                    အခြေခံ သီအိုရီ ရှင်းလင်းချက် (Theory)
+                </h2>
+
+                <div class="space-y-3 text-xs text-slate-300 leading-relaxed">
+                    <!-- Formula Box -->
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-center font-mono">
+                        <div class="text-amber-400 font-bold text-sm mb-1">Capacitive Reactance ($X_C$) Formula</div>
+                        <div class="text-slate-100 font-bold text-base">$$X_C = \frac{1}{2 \pi f C}$$</div>
+                        <div class="text-[11px] text-slate-400 mt-1">
+                            ($X_C$ = ခုခံအား ၊ $f$ = Frequency ၊ $C$ = Capacitance)
+                        </div>
+                    </div>
+
+                    <!-- Mode 1 Explanation -->
+                    <div class="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-1">
+                        <div class="font-bold text-cyan-400 flex items-center">
+                            <i class="fa-solid fa-check-circle mr-1.5"></i> 1. DC လျှပ်စီး (5.1V) အတွက်:
+                        </div>
+                        <p class="text-slate-400 text-[11px]">
+                            DC တွင် frequency မရှိပါ ($f = 0$ Hz)။ ထို့ကြောင့် $X_C = \infty$ (အကန့်အသတ်မရှိ ခုခံအားကြီးမား) သွားသဖြင့် <strong>DC သည် Capacitor ကို ဖြတ်မစီးနိုင်ပါ</strong>။ Direct Current (5.1V) သည် Output သို့ 100% အပြည့် တိုက်ရိုက်စီးဆင်းသွားပါသည်။
+                        </p>
+                    </div>
+
+                    <!-- Mode 2 Explanation -->
+                    <div class="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-1">
+                        <div class="font-bold text-red-400 flex items-center">
+                            <i class="fa-solid fa-filter mr-1.5"></i> 2. AC Noise လှိုင်းများအတွက်:
+                        </div>
+                        <p class="text-slate-400 text-[11px]">
+                            Charger မှ ပါလာသော AC Ripple Noise များသည် Frequency ($f$) မြင့်မားကြသည်။ ထို့ကြောင့် $X_C \approx 0$ (ခုခံအား လွန်စွာနည်းသွား) သဖြင့် <strong>AC Noise များသည် Capacitor မှတစ်ဆင့် Ground (GND) သို့ စိမ့်ဝင်စွန့်ထုတ်သွားသည်</strong>။
+                        </p>
+                    </div>
+
+                    <!-- Practical summary -->
+                    <div class="p-2.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-emerald-300 text-[11px]">
+                        <span class="font-bold">💡 လက်တွေ့ ဖုန်းပြင်သင်ခန်းစာ:</span> Bypass Capacitor (Filter Cap) ကို Parallel တပ်ထားခြင်းဖြင့် DC 5.1V ကို မထိခိုက်စေဘဲ မကောင်းသော AC Noise လှိုင်းများကို GND ထဲသို့ သန့်စင်စွန့်ထုတ်ပေးပါသည်။
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 bg-slate-950 py-3 text-center text-xs text-slate-500">
+        <p>USB 5.1V Decoupling / Bypass Capacitor Interactive Animation</p>
+    </footer>
+
+    <!-- Main Rendering Script -->
+    <script>
+        // State variables
+        let currentMode = 'dc'; // 'dc', 'ac', 'combined'
+        let isRunning = true;
+        let isCapacitorConnected = true;
+        
+        let simSpeed = 1.0;
+        let noiseAmp = 0.8;
+        let noiseFreq = 100;
+
+        let lastTime = performance.now();
+        let globalTime = 0;
+
+        // Canvases & Contexts
+        const circuitCanvas = document.getElementById('circuitCanvas');
+        const ctx = circuitCanvas.getContext('2d');
+
+        const scopeCanvas = document.getElementById('scopeCanvas');
+        const scopeCtx = scopeCanvas.getContext('2d');
+
+        // Layout Geometry Nodes
+        let layout = {
+            width: 0,
+            height: 0,
+            usbX: 0,
+            usbY: 0,
+            usbW: 0,
+            usbH: 0,
+            wireY: 0,
+            junctionX: 0,
+            outputX: 0,
+            outputY: 0,
+            capTopY: 0,
+            capBotY: 0,
+            gndY: 0
+        };
+
+        // Cross-browser Rounded Rectangle Helper
+        function drawRoundRect(c, x, y, w, h, r) {
+            c.beginPath();
+            if (c.roundRect) {
+                c.roundRect(x, y, w, h, r);
+            } else {
+                c.moveTo(x + r, y);
+                c.lineTo(x + w - r, y);
+                c.quadraticCurveTo(x + w, y, x + w, y + r);
+                c.lineTo(x + w, y + h - r);
+                c.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+                c.lineTo(x + r, y + h);
+                c.quadraticCurveTo(x, y + h, x, y + h - r);
+                c.lineTo(x, y + r);
+                c.quadraticCurveTo(x, y, x + r, y);
+                c.closePath();
+            }
+        }
+
+        // Particle Class definition
+        let particles = [];
+        let blockedParticles = [];
+
+        class Particle {
+            constructor(type, x, y) {
+                this.type = type; // 'dc' or 'ac'
+                this.x = x;
+                this.y = y;
+                this.size = type === 'dc' ? 4.5 : 3.5;
+                this.speed = (type === 'dc' ? 2.4 : 3.0) * (0.85 + Math.random() * 0.3);
+                this.state = 'main'; // 'main', 'cap_down', 'to_out'
+                this.phase = Math.random() * Math.PI * 2;
+                this.alpha = 1.0;
+                this.offsetY = 0;
+            }
+
+            update(dt) {
+                const dist = this.speed * simSpeed * dt * 60;
+
+                if (this.type === 'ac') {
+                    this.phase += dt * (noiseFreq / 15) * simSpeed;
+                    this.offsetY = Math.sin(this.phase) * (noiseAmp * 6);
+                }
+
+                if (this.state === 'main') {
+                    this.x += dist;
+
+                    // Reached T-Junction
+                    if (this.x >= layout.junctionX) {
+                        if (this.type === 'ac') {
+                            if (isCapacitorConnected) {
+                                // AC noise diverted into Capacitor -> GND
+                                this.state = 'cap_down';
+                                this.x = layout.junctionX;
+                            } else {
+                                // Capacitor Removed -> AC leaks to output!
+                                this.state = 'to_out';
+                            }
+                        } else if (this.type === 'dc') {
+                            // DC passes straight to Output
+                            this.state = 'to_out';
+
+                            // Spawn blocked DC visual pulse towards Cap
+                            if (Math.random() < 0.12 && isCapacitorConnected) {
+                                createBlockedDCParticle(layout.junctionX, layout.wireY);
+                            }
+                        }
+                    }
+                } else if (this.state === 'to_out') {
+                    this.x += dist;
+                    if (this.x >= layout.outputX) return false;
+                } else if (this.state === 'cap_down') {
+                    this.y += dist;
+                    if (this.y >= layout.gndY) return false;
+                }
+
+                return true;
+            }
+
+            draw(c) {
+                c.save();
+                c.globalAlpha = this.alpha;
+
+                let drawX = this.x;
+                let drawY = this.y + this.offsetY;
+
+                if (this.state === 'cap_down') {
+                    drawX = this.x + this.offsetY;
+                    drawY = this.y;
+                }
+
+                c.beginPath();
+                c.arc(drawX, drawY, this.size, 0, Math.PI * 2);
+
+                if (this.type === 'dc') {
+                    c.fillStyle = '#06b6d4';
+                    c.shadowColor = '#06b6d4';
+                    c.shadowBlur = 8;
+                } else {
+                    c.fillStyle = '#ef4444';
+                    c.shadowColor = '#ef4444';
+                    c.shadowBlur = 8;
+                }
+
+                c.fill();
+                c.restore();
+            }
+        }
+
+        function createBlockedDCParticle(x, y) {
+            blockedParticles.push({
+                x: x,
+                y: y,
+                alpha: 1.0,
+                speed: 1.2 * simSpeed
+            });
+        }
+
+        // Resize Canvas & Adjust Layout Geometry
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+
+            // 1. Circuit Canvas
+            const cContainer = circuitCanvas.parentElement;
+            const cWidth = cContainer.clientWidth;
+            const cHeight = cContainer.clientHeight;
+
+            circuitCanvas.width = cWidth * dpr;
+            circuitCanvas.height = cHeight * dpr;
+            ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform matrix
+            ctx.scale(dpr, dpr);
+
+            // 2. Scope Canvas
+            const sContainer = scopeCanvas.parentElement;
+            const sWidth = sContainer.clientWidth;
+            const sHeight = sContainer.clientHeight;
+
+            scopeCanvas.width = sWidth * dpr;
+            scopeCanvas.height = sHeight * dpr;
+            scopeCtx.setTransform(1, 0, 0, 1, 0, 0);
+            scopeCtx.scale(dpr, dpr);
+
+            // Calculate layout nodes based on current dimensions
+            layout = {
+                width: cWidth,
+                height: cHeight,
+
+                usbX: cWidth * 0.08,
+                usbY: cHeight * 0.20,
+                usbW: cWidth * 0.12,
+                usbH: cHeight * 0.55,
+
+                wireY: cHeight * 0.38,
+                junctionX: cWidth * 0.52,
+                outputX: cWidth * 0.86,
+                outputY: cHeight * 0.38,
+
+                capTopY: cHeight * 0.56,
+                capBotY: cHeight * 0.65,
+                gndY: cHeight * 0.82
+            };
+        }
+
+        // Spawner logic
+        let spawnTimer = 0;
+        function handleParticleSpawning(dt) {
+            if (!isRunning) return;
+
+            spawnTimer += dt * simSpeed;
+            if (spawnTimer >= 0.07) {
+                spawnTimer = 0;
+                const startX = layout.usbX + layout.usbW;
+                const startY = layout.wireY;
+
+                if (currentMode === 'dc') {
+                    particles.push(new Particle('dc', startX, startY));
+                } else if (currentMode === 'ac') {
+                    particles.push(new Particle('ac', startX, startY));
+                } else if (currentMode === 'combined') {
+                    particles.push(new Particle('dc', startX, startY));
+                    particles.push(new Particle('ac', startX, startY));
+                }
+            }
+        }
+
+        // Circuit Canvas Rendering
+        function drawCircuit() {
+            const w = layout.width;
+            const h = layout.height;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // 1. Grid Background
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+            const gridSize = 24;
+            for (let x = 0; x < w; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, h);
+                ctx.stroke();
+            }
+            for (let y = 0; y < h; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(w, y);
+                ctx.stroke();
+            }
+
+            // 2. Main Blue Wire Trace
+            ctx.save();
+            ctx.strokeStyle = '#2563eb';
+            ctx.lineWidth = 4;
+            ctx.shadowColor = 'rgba(37, 99, 235, 0.4)';
+            ctx.shadowBlur = 6;
+
+            // Main horizontal line
+            ctx.beginPath();
+            ctx.moveTo(layout.usbX + layout.usbW, layout.wireY);
+            ctx.lineTo(layout.outputX, layout.wireY);
+            ctx.stroke();
+
+            // Vertical branch to Cap & GND
+            ctx.beginPath();
+            ctx.moveTo(layout.junctionX, layout.wireY);
+            ctx.lineTo(layout.junctionX, isCapacitorConnected ? layout.gndY : layout.capTopY - 12);
+            ctx.stroke();
+            ctx.restore();
+
+            // T-Junction Node
+            ctx.beginPath();
+            ctx.arc(layout.junctionX, layout.wireY, 5.5, 0, Math.PI * 2);
+            ctx.fillStyle = '#60a5fa';
+            ctx.fill();
+
+            // 3. Draw USB Connector (Left Side - Vertical Rectangle)
+            ctx.save();
+            const uX = layout.usbX;
+            const uY = layout.usbY;
+            const uW = layout.usbW;
+            const uH = layout.usbH;
+
+            // USB outer shell
+            ctx.fillStyle = '#2563eb';
+            ctx.strokeStyle = '#60a5fa';
+            ctx.lineWidth = 2.5;
+            drawRoundRect(ctx, uX, uY, uW, uH, 10);
+            ctx.fill();
+            ctx.stroke();
+
+            // USB inner inset
+            ctx.fillStyle = '#1d4ed8';
+            drawRoundRect(ctx, uX + 4, uY + 8, uW - 8, uH - 16, 6);
+            ctx.fill();
+
+            // USB Text Labels
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 13px Inter, Padauk, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('USB', uX + uW / 2, uY + uH / 2 - 4);
+            ctx.font = '10px Inter, Padauk, sans-serif';
+            ctx.fillStyle = '#bfdbfe';
+            ctx.fillText('Connector', uX + uW / 2, uY + uH / 2 + 12);
+
+            // Red Voltage Label near Exit
+            ctx.fillStyle = '#ef4444';
+            ctx.font = 'bold 14px Inter, sans-serif';
+            ctx.textAlign = 'left';
+            let vinLabel = (currentMode === 'dc') ? '5.1 V' : (currentMode === 'ac' ? 'AC Noise' : '5.1V + AC');
+            ctx.fillText(vinLabel, uX + uW + 8, layout.wireY - 12);
+            ctx.restore();
+
+            // 4. Output Node Circle (Right Side)
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(layout.outputX, layout.outputY, 9, 0, Math.PI * 2);
+            ctx.fillStyle = '#2563eb';
+            ctx.strokeStyle = '#93c5fd';
+            ctx.lineWidth = 2.5;
+            ctx.fill();
+            ctx.stroke();
+
+            // Output Voltage Label (Purple 5.1V)
+            ctx.fillStyle = '#a855f7';
+            ctx.font = 'bold 16px Inter, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('5.1V', layout.outputX + 14, layout.outputY + 5);
+
+            // Output Signal Quality Status
+            ctx.font = '11px Padauk, sans-serif';
+            let outQualityText = "DC 5.1V အပြည့်ထွက်သည်";
+            let outColor = "#10b981";
+
+            if (!isCapacitorConnected && (currentMode === 'ac' || currentMode === 'combined')) {
+                outQualityText = "⚠️ AC Ripple နွိုက်စ် ပါလာသည်!";
+                outColor = "#ef4444";
+            }
+            ctx.fillStyle = outColor;
+            ctx.fillText(outQualityText, layout.outputX - 20, layout.outputY + 30);
+            ctx.restore();
+
+            // 5. Capacitor Component Symbol
+            drawCapacitorSymbol(ctx);
+
+            // 6. Ground Symbol (GND)
+            drawGNDSymbol(ctx);
+
+            // 7. Blocked DC Visual Effect
+            drawBlockedDCEffect(ctx);
+        }
+
+        function drawCapacitorSymbol(c) {
+            const cx = layout.junctionX;
+            const topY = layout.capTopY;
+            const botY = layout.capBotY;
+            const plateW = 32;
+
+            if (!isCapacitorConnected) {
+                // Capacitor Removed Marker
+                c.save();
+                c.strokeStyle = '#ef4444';
+                c.lineWidth = 1.5;
+                c.setLineDash([4, 4]);
+                c.beginPath();
+                c.rect(cx - 20, topY - 10, 40, botY - topY + 20);
+                c.stroke();
+
+                c.fillStyle = '#ef4444';
+                c.font = 'bold 11px Padauk, sans-serif';
+                c.textAlign = 'left';
+                c.fillText('ဖြုတ်ထားသည် (Removed)', cx + 26, (topY + botY) / 2 + 4);
+                c.restore();
+                return;
+            }
+
+            c.save();
+
+            // Top Plate
+            c.strokeStyle = '#f8fafc';
+            c.lineWidth = 4;
+            c.beginPath();
+            c.moveTo(cx - plateW / 2, topY);
+            c.lineTo(cx + plateW / 2, topY);
+            c.stroke();
+
+            // Bottom Plate
+            c.beginPath();
+            c.moveTo(cx - plateW / 2, botY);
+            c.lineTo(cx + plateW / 2, botY);
+            c.stroke();
+
+            // Electric Field Glow between plates
+            const gapGrad = c.createLinearGradient(0, topY, 0, botY);
+            if (currentMode !== 'dc') {
+                gapGrad.addColorStop(0, 'rgba(239, 68, 68, 0.4)');
+                gapGrad.addColorStop(1, 'rgba(239, 68, 68, 0.05)');
+            } else {
+                gapGrad.addColorStop(0, 'rgba(6, 182, 212, 0.2)');
+                gapGrad.addColorStop(1, 'rgba(6, 182, 212, 0.02)');
+            }
+            c.fillStyle = gapGrad;
+            c.fillRect(cx - plateW / 2, topY + 2, plateW, botY - topY - 4);
+
+            // Component Label
+            c.fillStyle = '#38bdf8';
+            c.font = 'bold 12px Inter, sans-serif';
+            c.textAlign = 'left';
+            c.fillText('C (10µF)', cx + plateW / 2 + 10, (topY + botY) / 2 - 2);
+            c.font = '10px Padauk, sans-serif';
+            c.fillStyle = '#94a3b8';
+            c.fillText('Bypass Cap', cx + plateW / 2 + 10, (topY + botY) / 2 + 12);
+
+            // DC Blocking Status Text
+            c.fillStyle = '#f59e0b';
+            c.font = 'bold 10px Padauk, sans-serif';
+            c.textAlign = 'right';
+            c.fillText('DC ဘလောက်တားသည် ⛔', cx - plateW / 2 - 8, (topY + botY) / 2 + 3);
+
+            c.restore();
+        }
+
+        function drawGNDSymbol(c) {
+            c.save();
+            const gx = layout.junctionX;
+            const gy = layout.gndY;
+
+            c.strokeStyle = '#94a3b8';
+            c.lineWidth = 2.5;
+
+            // 3 Horizontal lines of GND
+            c.beginPath();
+            c.moveTo(gx - 18, gy);
+            c.lineTo(gx + 18, gy);
+
+            c.moveTo(gx - 11, gy + 5);
+            c.lineTo(gx + 11, gy + 5);
+
+            c.moveTo(gx - 5, gy + 10);
+            c.lineTo(gx + 5, gy + 10);
+            c.stroke();
+
+            // GND Text Label
+            c.fillStyle = '#cbd5e1';
+            c.font = 'bold 12px Inter, Padauk, sans-serif';
+            c.textAlign = 'center';
+            c.fillText('GND (0V)', gx, gy + 24);
+            c.restore();
+        }
+
+        function drawBlockedDCEffect(c) {
+            for (let i = blockedParticles.length - 1; i >= 0; i--) {
+                const p = blockedParticles[i];
+                p.y += p.speed;
+
+                if (p.y >= layout.capTopY - 2) {
+                    p.alpha -= 0.05;
+                }
+
+                if (p.alpha <= 0) {
+                    blockedParticles.splice(i, 1);
+                    continue;
+                }
+
+                c.save();
+                c.globalAlpha = p.alpha;
+                c.fillStyle = '#06b6d4';
+                c.beginPath();
+                c.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                c.fill();
+
+                // Small X mark to show blocked status
+                if (p.y >= layout.capTopY - 4) {
+                    c.strokeStyle = '#ef4444';
+                    c.lineWidth = 1.5;
+                    c.beginPath();
+                    c.moveTo(p.x - 4, p.y - 4);
+                    c.lineTo(p.x + 4, p.y + 4);
+                    c.moveTo(p.x + 4, p.y - 4);
+                    c.lineTo(p.x - 4, p.y + 4);
+                    c.stroke();
+                }
+
+                c.restore();
+            }
+        }
+
+        // Real-time Oscilloscope Logic
+        let scopeBuffer = [];
+        const maxScopeSamples = 160;
+
+        function updateOscilloscope(dt) {
+            const w = scopeCanvas.parentElement.clientWidth;
+            const h = scopeCanvas.parentElement.clientHeight;
+
+            scopeCtx.clearRect(0, 0, w, h);
+
+            // Scope Background
+            scopeCtx.fillStyle = '#020617';
+            scopeCtx.fillRect(0, 0, w, h);
+
+            // Graticule Grid Lines
+            scopeCtx.strokeStyle = '#1e293b';
+            scopeCtx.lineWidth = 1;
+
+            for (let x = 0; x < w; x += w / 8) {
+                scopeCtx.beginPath();
+                scopeCtx.moveTo(x, 0);
+                scopeCtx.lineTo(x, h);
+                scopeCtx.stroke();
+            }
+            for (let y = 0; y < h; y += h / 5) {
+                scopeCtx.beginPath();
+                scopeCtx.moveTo(0, y);
+                scopeCtx.lineTo(w, y);
+                scopeCtx.stroke();
+            }
+
+            // Zero Axis
+            scopeCtx.strokeStyle = '#334155';
+            scopeCtx.lineWidth = 1.5;
+            scopeCtx.beginPath();
+            scopeCtx.moveTo(0, h / 2);
+            scopeCtx.lineTo(w, h / 2);
+            scopeCtx.stroke();
+
+            // Scope Sampling
+            if (isRunning) {
+                globalTime += dt * simSpeed * (noiseFreq / 30);
+
+                let baseV = 5.1;
+                let noiseVal = 0;
+
+                if (currentMode === 'ac' || currentMode === 'combined') {
+                    noiseVal = Math.sin(globalTime * 5) * noiseAmp;
+                }
+
+                let vin = (currentMode === 'ac') ? noiseVal : (baseV + noiseVal);
+                let vout = baseV;
+
+                if (!isCapacitorConnected && (currentMode === 'ac' || currentMode === 'combined')) {
+                    vout = vin; // Noise leaks to output when cap removed
+                } else if (currentMode === 'ac' && isCapacitorConnected) {
+                    vout = 0; // AC filtered out
+                }
+
+                scopeBuffer.push({ vin: vin, vout: vout });
+                if (scopeBuffer.length > maxScopeSamples) {
+                    scopeBuffer.shift();
+                }
+
+                // Update UI Indicators
+                document.getElementById('scopeVinText').innerText = `${vin.toFixed(2)} V`;
+                document.getElementById('scopeVoutText').innerText = `${vout.toFixed(2)} V`;
+            }
+
+            if (scopeBuffer.length < 2) return;
+
+            const stepX = w / maxScopeSamples;
+            const centerY = h * 0.55;
+            const scaleY = h * 0.08;
+
+            // Draw Input Waveform (Amber)
+            scopeCtx.save();
+            scopeCtx.strokeStyle = '#f59e0b';
+            scopeCtx.lineWidth = 2;
+            scopeCtx.beginPath();
+
+            for (let i = 0; i < scopeBuffer.length; i++) {
+                const x = i * stepX;
+                const y = centerY - (scopeBuffer[i].vin - (currentMode === 'ac' ? 0 : 4.0)) * scaleY;
+                if (i === 0) scopeCtx.moveTo(x, y);
+                else scopeCtx.lineTo(x, y);
+            }
+            scopeCtx.stroke();
+            scopeCtx.restore();
+
+            // Draw Output Waveform (Cyan / Red if noisy)
+            scopeCtx.save();
+            scopeCtx.strokeStyle = isCapacitorConnected ? '#06b6d4' : '#ef4444';
+            scopeCtx.lineWidth = 2.5;
+            scopeCtx.beginPath();
+
+            for (let i = 0; i < scopeBuffer.length; i++) {
+                const x = i * stepX;
+                const y = centerY - (scopeBuffer[i].vout - (currentMode === 'ac' ? 0 : 4.0)) * scaleY;
+                if (i === 0) scopeCtx.moveTo(x, y);
+                else scopeCtx.lineTo(x, y);
+            }
+            scopeCtx.stroke();
+            scopeCtx.restore();
+        }
+
+        // Animation Loop
+        function animate(now) {
+            const dt = Math.min((now - lastTime) / 1000, 0.1);
+            lastTime = now;
+
+            if (isRunning) {
+                handleParticleSpawning(dt);
+
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const keep = particles[i].update(dt);
+                    if (!keep) particles.splice(i, 1);
+                }
+            }
+
+            drawCircuit();
+
+            for (let p of particles) {
+                p.draw(ctx);
+            }
+
+            updateOscilloscope(dt);
+
+            requestAnimationFrame(animate);
+        }
+
+        // Control Handlers
+        function setMode(mode) {
+            currentMode = mode;
+            particles = [];
+            blockedParticles = [];
+
+            const btnDC = document.getElementById('btnModeDC');
+            const btnAC = document.getElementById('btnModeAC');
+            const btnComb = document.getElementById('btnModeCombined');
+
+            const activeClass = "flex items-center justify-center space-x-2 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all duration-200 bg-cyan-500/10 border-cyan-500/60 text-cyan-300 shadow-lg shadow-cyan-500/10";
+            const inactiveClass = "flex items-center justify-center space-x-2 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all duration-200 bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200 hover:bg-slate-750";
+
+            btnDC.className = (mode === 'dc') ? activeClass : inactiveClass;
+            btnAC.className = (mode === 'ac') ? activeClass : inactiveClass;
+            btnComb.className = (mode === 'combined') ? activeClass : inactiveClass;
+
+            const headerVIn = document.getElementById('headerVIn');
+            if (mode === 'dc') headerVIn.innerText = "5.10 V (DC)";
+            else if (mode === 'ac') headerVIn.innerText = "±0.80 V (AC Ripple)";
+            else headerVIn.innerText = "5.10 V + AC Noise";
+        }
+
+        function togglePlay() {
+            isRunning = !isRunning;
+            const icon = document.getElementById('playIcon');
+            const statusText = document.getElementById('simStatusText');
+
+            if (isRunning) {
+                icon.className = "fa-solid fa-pause";
+                statusText.innerText = "Running / ပတ်စီးနေသည်";
+                statusText.className = "text-xs font-bold text-emerald-400";
+            } else {
+                icon.className = "fa-solid fa-play";
+                statusText.innerText = "Paused / ရပ်တန့်ထားသည်";
+                statusText.className = "text-xs font-bold text-amber-400";
+            }
+        }
+
+        function toggleCapacitor() {
+            isCapacitorConnected = !isCapacitorConnected;
+            const btnText = document.getElementById('capToggleState');
+            const capStatusText = document.getElementById('capStatusText');
+            const capStatusIndicator = document.getElementById('capStatusIndicator');
+
+            if (isCapacitorConnected) {
+                btnText.innerText = "ON (တပ်ဆင်ထား)";
+                btnText.className = "text-emerald-400";
+                capStatusText.innerText = "ON (10µF)";
+                capStatusText.className = "text-emerald-400 font-bold";
+                capStatusIndicator.className = "w-2.5 h-2.5 rounded-full bg-blue-500";
+            } else {
+                btnText.innerText = "OFF (ဖြုတ်ထား)";
+                btnText.className = "text-red-400";
+                capStatusText.innerText = "Disconnected";
+                capStatusText.className = "text-red-400 font-bold";
+                capStatusIndicator.className = "w-2.5 h-2.5 rounded-full bg-red-500 animate-ping";
+            }
+        }
+
+        function resetSimulation() {
+            particles = [];
+            blockedParticles = [];
+            scopeBuffer = [];
+            globalTime = 0;
+        }
+
+        function updateSliders() {
+            simSpeed = parseFloat(document.getElementById('sliderSpeed').value);
+            noiseAmp = parseFloat(document.getElementById('sliderNoise').value);
+            noiseFreq = parseInt(document.getElementById('sliderFreq').value);
+
+            document.getElementById('valSpeed').innerText = `${simSpeed.toFixed(1)}x`;
+            document.getElementById('valNoise').innerText = `±${noiseAmp.toFixed(2)} V`;
+            document.getElementById('valFreq').innerText = `${noiseFreq} kHz`;
+        }
+
+        // Initialize App
+        function init() {
+            resizeCanvases();
+            window.addEventListener('resize', resizeCanvases);
+            updateSliders();
+            setMode('dc');
+            requestAnimationFrame(animate);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
