@@ -195,7 +195,7 @@
                     <!-- Frequency Slider -->
                     <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-1.5">
                         <div class="flex justify-between items-center text-slate-300 font-medium">
-                            <span><i class="fa-solid fa-wave-square text-amber-400 mr-1"></i> Frequency ($f$):</span>
+                            <span><i class="fa-solid fa-wave-square text-amber-400 mr-1"></i> Frequency (f):</span>
                             <span id="valFreq" class="text-amber-400 font-mono font-bold">100 kHz</span>
                         </div>
                         <input type="range" id="sliderFreq" min="20" max="400" step="10" value="100" oninput="updateSliders()" class="w-full accent-amber-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer">
@@ -227,13 +227,13 @@
                 <div class="grid grid-cols-2 gap-2 text-[11px]">
                     <div class="bg-slate-950/90 p-2 rounded-lg border border-slate-800">
                         <div class="text-slate-400 flex items-center">
-                            <span class="w-2 h-2 rounded-full bg-amber-400 inline-block mr-1.5"></span> Input ($V_{in}$)
+                            <span class="w-2 h-2 rounded-full bg-amber-400 inline-block mr-1.5"></span> Input (V_{in})
                         </div>
                         <div id="scopeVinText" class="font-mono font-bold text-amber-300 mt-0.5">5.10 V (Ripple)</div>
                     </div>
                     <div class="bg-slate-950/90 p-2 rounded-lg border border-slate-800">
                         <div class="text-slate-400 flex items-center">
-                            <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block mr-1.5"></span> Output ($V_{out}$)
+                            <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block mr-1.5"></span> Output (V_{out})
                         </div>
                         <div id="scopeVoutText" class="font-mono font-bold text-cyan-300 mt-0.5">5.10 V Clean DC</div>
                     </div>
@@ -250,10 +250,10 @@
                 <div class="space-y-3 text-xs text-slate-300 leading-relaxed">
                     <!-- Formula Box -->
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-center font-mono">
-                        <div class="text-amber-400 font-bold text-sm mb-1">Capacitive Reactance ($X_C$) Formula</div>
-                        <div class="text-slate-100 font-bold text-base">$$X_C = \frac{1}{2 \pi f C}$$</div>
+                        <div class="text-amber-400 font-bold text-sm mb-1">Capacitive Reactance (X_C) Formula</div>
+                        <div class="text-slate-100 font-bold text-base">X_C = \frac{1}{2 \pi f C}</div>
                         <div class="text-[11px] text-slate-400 mt-1">
-                            ($X_C$ = ခုခံအား ၊ $f$ = Frequency ၊ $C$ = Capacitance)
+                            (X_C = ခုခံအား ၊ f = Frequency ၊ C = Capacitance)
                         </div>
                     </div>
 
@@ -263,7 +263,7 @@
                             <i class="fa-solid fa-check-circle mr-1.5"></i> 1. DC လျှပ်စီး (5.1V) အတွက်:
                         </div>
                         <p class="text-slate-400 text-[11px]">
-                            DC တွင် frequency မရှိပါ ($f = 0$ Hz)။ ထို့ကြောင့် $X_C = \infty$ (အကန့်အသတ်မရှိ ခုခံအားကြီးမား) သွားသဖြင့် <strong>DC သည် Capacitor ကို ဖြတ်မစီးနိုင်ပါ</strong>။ Direct Current (5.1V) သည် Output သို့ 100% အပြည့် တိုက်ရိုက်စီးဆင်းသွားပါသည်။
+                            DC တွင် frequency မရှိပါ (f = 0$ Hz)။ ထို့ကြောင့် X_C = \infty (အကန့်အသတ်မရှိ ခုခံအားကြီးမား) သွားသဖြင့် <strong>DC သည် Capacitor ကို ဖြတ်မစီးနိုင်ပါ</strong>။ Direct Current (5.1V) သည် Output သို့ 100% အပြည့် တိုက်ရိုက်စီးဆင်းသွားပါသည်။
                         </p>
                     </div>
 
@@ -273,7 +273,7 @@
                             <i class="fa-solid fa-filter mr-1.5"></i> 2. AC Noise လှိုင်းများအတွက်:
                         </div>
                         <p class="text-slate-400 text-[11px]">
-                            Charger မှ ပါလာသော AC Ripple Noise များသည် Frequency ($f$) မြင့်မားကြသည်။ ထို့ကြောင့် $X_C \approx 0$ (ခုခံအား လွန်စွာနည်းသွား) သဖြင့် <strong>AC Noise များသည် Capacitor မှတစ်ဆင့် Ground (GND) သို့ စိမ့်ဝင်စွန့်ထုတ်သွားသည်</strong>။
+                            Charger မှ ပါလာသော AC Ripple Noise များသည် Frequency (f) မြင့်မားကြသည်။ ထို့ကြောင့် X_C \approx 0 (ခုခံအား လွန်စွာနည်းသွား) သဖြင့် <strong>AC Noise များသည် Capacitor မှတစ်ဆင့် Ground (GND) သို့ စိမ့်ဝင်စွန့်ထုတ်သွားသည်</strong>။
                         </p>
                     </div>
 
