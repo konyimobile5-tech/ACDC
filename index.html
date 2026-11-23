@@ -77,10 +77,10 @@
                 </div>
                 <div>
                     <h1 class="text-base sm:text-lg font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-300 bg-clip-text text-transparent">
-                        USB 5.1V Bypass Capacitor Simulation
+                        USB 5.1V to Charging IC (VBus) Bypass Capacitor Simulation
                     </h1>
                     <p class="text-xs text-slate-400">
-                        Capacitor မှ AC Noise လှိုင်းများကို GND သို့ စွန့်ထုတ်၍ 5.1V DC သန့်သန့် ထုတ်ပေးပုံ သရုပ်ပြချက်
+                        USB Connector မှ 5.1V DC စီးဝင်စဉ် Capacitor မှ AC Noise များကို GND သို့ စွန့်ထုတ်၍ Charging IC (VBus) ကို ကာကွယ်ပေးပုံ သရုပ်ပြချက်
                     </p>
                 </div>
             </div>
@@ -89,7 +89,7 @@
             <div class="flex items-center space-x-3 text-xs">
                 <div class="flex items-center space-x-2 bg-slate-950/80 px-3 py-1.5 rounded-lg border border-slate-800">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span class="text-slate-300 font-medium">Input Voltage: <span id="headerVIn" class="text-cyan-400 font-mono font-bold">5.10 V (DC)</span></span>
+                    <span class="text-slate-300 font-medium">VBus Status: <span id="headerVIn" class="text-cyan-400 font-mono font-bold">5.10 V Clean DC</span></span>
                 </div>
                 <div class="flex items-center space-x-2 bg-slate-950/80 px-3 py-1.5 rounded-lg border border-slate-800">
                     <span id="capStatusIndicator" class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
@@ -110,8 +110,8 @@
                 <!-- Status Top Toolbar -->
                 <div class="px-4 py-2.5 bg-slate-950/80 border-b border-slate-800 flex flex-wrap justify-between items-center text-xs gap-2">
                     <div class="flex items-center space-x-2">
-                        <i class="fa-solid fa-microchip text-cyan-400"></i>
-                        <span class="font-bold text-slate-200">လျှပ်စစ်ပတ်လမ်း သရုပ်ပြပုံ (Circuit Diagram)</span>
+                        <i class="fa-solid fa-microchip text-red-400"></i>
+                        <span class="font-bold text-slate-200">USB to Charging IC Schematic Diagram</span>
                     </div>
                     <div class="flex items-center space-x-4 text-[11px]">
                         <div class="flex items-center space-x-1.5">
@@ -120,13 +120,13 @@
                         </div>
                         <div class="flex items-center space-x-1.5">
                             <span class="w-3 h-3 rounded-full bg-red-500 inline-block shadow-sm shadow-red-500"></span>
-                            <span class="text-slate-300">AC Noise / Ripple</span>
+                            <span class="text-slate-300">AC Ripple Noise</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Main Interactive Circuit Canvas Container -->
-                <div class="canvas-container bg-slate-950/90 flex items-center justify-center">
+                <div class="canvas-container bg-white flex items-center justify-center">
                     <canvas id="circuitCanvas"></canvas>
                 </div>
 
@@ -134,7 +134,7 @@
                 <div class="p-3 bg-slate-900 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <button id="btnModeDC" onclick="setMode('dc')" class="flex items-center justify-center space-x-2 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all duration-200 bg-cyan-500/10 border-cyan-500/60 text-cyan-300 hover:bg-cyan-500/20 shadow-lg shadow-cyan-500/10">
                         <i class="fa-solid fa-minus text-cyan-400"></i>
-                        <span>1. DC Only (DC သီးသန့်)</span>
+                        <span>1. DC သီးသန့် (5.1V)</span>
                     </button>
                     <button id="btnModeAC" onclick="setMode('ac')" class="flex items-center justify-center space-x-2 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all duration-200 bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200 hover:bg-slate-750">
                         <i class="fa-solid fa-wave-square text-red-400"></i>
@@ -195,7 +195,7 @@
                     <!-- Frequency Slider -->
                     <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-1.5">
                         <div class="flex justify-between items-center text-slate-300 font-medium">
-                            <span><i class="fa-solid fa-wave-square text-amber-400 mr-1"></i> Frequency (f):</span>
+                            <span><i class="fa-solid fa-wave-square text-amber-400 mr-1"></i> Frequency ($f$):</span>
                             <span id="valFreq" class="text-amber-400 font-mono font-bold">100 kHz</span>
                         </div>
                         <input type="range" id="sliderFreq" min="20" max="400" step="10" value="100" oninput="updateSliders()" class="w-full accent-amber-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer">
@@ -227,13 +227,13 @@
                 <div class="grid grid-cols-2 gap-2 text-[11px]">
                     <div class="bg-slate-950/90 p-2 rounded-lg border border-slate-800">
                         <div class="text-slate-400 flex items-center">
-                            <span class="w-2 h-2 rounded-full bg-amber-400 inline-block mr-1.5"></span> Input (V_{in})
+                            <span class="w-2 h-2 rounded-full bg-amber-400 inline-block mr-1.5"></span> CH1: USB Input
                         </div>
                         <div id="scopeVinText" class="font-mono font-bold text-amber-300 mt-0.5">5.10 V (Ripple)</div>
                     </div>
                     <div class="bg-slate-950/90 p-2 rounded-lg border border-slate-800">
                         <div class="text-slate-400 flex items-center">
-                            <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block mr-1.5"></span> Output (V_{out})
+                            <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block mr-1.5"></span> CH2: Charging IC VBus
                         </div>
                         <div id="scopeVoutText" class="font-mono font-bold text-cyan-300 mt-0.5">5.10 V Clean DC</div>
                     </div>
@@ -244,13 +244,13 @@
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3 flex-grow">
                 <h2 class="text-xs sm:text-sm font-bold text-slate-200 flex items-center border-b border-slate-800 pb-2">
                     <i class="fa-solid fa-graduation-cap text-cyan-400 mr-2"></i>
-                    အခြေခံ သီအိုရီ ရှင်းလင်းချက် (Theory)
+                    Charging IC (VBus) Filter Capacitor သီအိုရီ
                 </h2>
 
                 <div class="space-y-3 text-xs text-slate-300 leading-relaxed">
                     <!-- Formula Box -->
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-center font-mono">
-                        <div class="text-amber-400 font-bold text-sm mb-1">Capacitive Reactance (X_C) Formula</div>
+                        <div class="text-amber-400 font-bold text-sm mb-1">Capacitive Reactance ($X_C$) Formula</div>
                         <div class="text-slate-100 font-bold text-base">X_C = \frac{1}{2 \pi f C}</div>
                         <div class="text-[11px] text-slate-400 mt-1">
                             (X_C = ခုခံအား ၊ f = Frequency ၊ C = Capacitance)
@@ -260,26 +260,26 @@
                     <!-- Mode 1 Explanation -->
                     <div class="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-1">
                         <div class="font-bold text-cyan-400 flex items-center">
-                            <i class="fa-solid fa-check-circle mr-1.5"></i> 1. DC လျှပ်စီး (5.1V) အတွက်:
+                            <i class="fa-solid fa-check-circle mr-1.5"></i> 1. USB Connector မှ DC (5.1V) စီးလာသောအခါ:
                         </div>
                         <p class="text-slate-400 text-[11px]">
-                            DC တွင် frequency မရှိပါ (f = 0$ Hz)။ ထို့ကြောင့် X_C = \infty (အကန့်အသတ်မရှိ ခုခံအားကြီးမား) သွားသဖြင့် <strong>DC သည် Capacitor ကို ဖြတ်မစီးနိုင်ပါ</strong>။ Direct Current (5.1V) သည် Output သို့ 100% အပြည့် တိုက်ရိုက်စီးဆင်းသွားပါသည်။
+                            DC တွင် frequency မရှိပါ (f = 0 Hz)။ ထို့ကြောင့် X_C = \infty (အကန့်အသတ်မရှိ ခုခံအားကြီးမား) သွားသဖြင့် <strong>DC သည် Capacitor အောက်သို့ ဖြတ်မစီးနိုင်ပါ</strong>။ 5.1V DC အပြည့်သည် Charging IC ၏ <strong>VBus Pin</strong> သို့ တိုက်ရိုက် ရောက်ရှိသွားပါသည်။
                         </p>
                     </div>
 
                     <!-- Mode 2 Explanation -->
                     <div class="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-1">
                         <div class="font-bold text-red-400 flex items-center">
-                            <i class="fa-solid fa-filter mr-1.5"></i> 2. AC Noise လှိုင်းများအတွက်:
+                            <i class="fa-solid fa-filter mr-1.5"></i> 2. Charger/Cable မှ AC Noise ပါလာသောအခါ:
                         </div>
                         <p class="text-slate-400 text-[11px]">
-                            Charger မှ ပါလာသော AC Ripple Noise များသည် Frequency (f) မြင့်မားကြသည်။ ထို့ကြောင့် X_C \approx 0 (ခုခံအား လွန်စွာနည်းသွား) သဖြင့် <strong>AC Noise များသည် Capacitor မှတစ်ဆင့် Ground (GND) သို့ စိမ့်ဝင်စွန့်ထုတ်သွားသည်</strong>။
+                            AC Ripple Noise လှိုင်းများသည် Frequency (f) မြင့်မားသဖြင့် X_C \approx 0 ဖြစ်သွားကာ <strong>Capacitor မှတစ်ဆင့် Ground (GND) သို့ စွန့်ထုတ်သွားသည်</strong>။ ထို့ကြောင့် Charging IC ၏ VBus pin သို့ မကောင်းသော AC noise များ မဝင်ရောက်နိုင်တော့ပါ။
                         </p>
                     </div>
 
                     <!-- Practical summary -->
                     <div class="p-2.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-emerald-300 text-[11px]">
-                        <span class="font-bold">💡 လက်တွေ့ ဖုန်းပြင်သင်ခန်းစာ:</span> Bypass Capacitor (Filter Cap) ကို Parallel တပ်ထားခြင်းဖြင့် DC 5.1V ကို မထိခိုက်စေဘဲ မကောင်းသော AC Noise လှိုင်းများကို GND ထဲသို့ သန့်စင်စွန့်ထုတ်ပေးပါသည်။
+                        <span class="font-bold">💡 ဖုန်းပြင်ဆင်မှု ဗဟုသုတ:</span> VBus လမ်းကြောင်းပေါ်ရှိ Bypass Capacitor ပျက်စီးလျှင် သို့မဟုတ် ဖြုတ်ထားပါက Charging IC ထဲသို့ AC Noise များ ဝင်ရောက်ပြီး ဖုန်းအားသွင်းမှု မမှန်ခြင်း၊ IC ပူလာခြင်း သို့မဟုတ် ပျက်စီးခြင်းများ ဖြစ်ပေါ်စေပါသည်။
                     </div>
                 </div>
             </div>
@@ -314,7 +314,7 @@
         const scopeCanvas = document.getElementById('scopeCanvas');
         const scopeCtx = scopeCanvas.getContext('2d');
 
-        // Layout Geometry Nodes
+        // Layout Geometry Nodes matching ACDC_2.jpg
         let layout = {
             width: 0,
             height: 0,
@@ -324,8 +324,10 @@
             usbH: 0,
             wireY: 0,
             junctionX: 0,
-            outputX: 0,
-            outputY: 0,
+            icX: 0,
+            icY: 0,
+            icW: 0,
+            icH: 0,
             capTopY: 0,
             capBotY: 0,
             gndY: 0
@@ -360,8 +362,8 @@
                 this.x = x;
                 this.y = y;
                 this.size = type === 'dc' ? 4.5 : 3.5;
-                this.speed = (type === 'dc' ? 2.4 : 3.0) * (0.85 + Math.random() * 0.3);
-                this.state = 'main'; // 'main', 'cap_down', 'to_out'
+                this.speed = (type === 'dc' ? 2.5 : 3.2) * (0.85 + Math.random() * 0.3);
+                this.state = 'main'; // 'main', 'cap_down', 'to_ic'
                 this.phase = Math.random() * Math.PI * 2;
                 this.alpha = 1.0;
                 this.offsetY = 0;
@@ -386,12 +388,12 @@
                                 this.state = 'cap_down';
                                 this.x = layout.junctionX;
                             } else {
-                                // Capacitor Removed -> AC leaks to output!
-                                this.state = 'to_out';
+                                // Capacitor Removed -> AC enters Charging IC VBus!
+                                this.state = 'to_ic';
                             }
                         } else if (this.type === 'dc') {
-                            // DC passes straight to Output
-                            this.state = 'to_out';
+                            // DC passes straight to Charging IC
+                            this.state = 'to_ic';
 
                             // Spawn blocked DC visual pulse towards Cap
                             if (Math.random() < 0.12 && isCapacitorConnected) {
@@ -399,9 +401,9 @@
                             }
                         }
                     }
-                } else if (this.state === 'to_out') {
+                } else if (this.state === 'to_ic') {
                     this.x += dist;
-                    if (this.x >= layout.outputX) return false;
+                    if (this.x >= layout.icX) return false; // Enters IC and dissipates
                 } else if (this.state === 'cap_down') {
                     this.y += dist;
                     if (this.y >= layout.gndY) return false;
@@ -426,13 +428,13 @@
                 c.arc(drawX, drawY, this.size, 0, Math.PI * 2);
 
                 if (this.type === 'dc') {
-                    c.fillStyle = '#06b6d4';
-                    c.shadowColor = '#06b6d4';
-                    c.shadowBlur = 8;
+                    c.fillStyle = '#0284c7';
+                    c.shadowColor = '#38bdf8';
+                    c.shadowBlur = 6;
                 } else {
-                    c.fillStyle = '#ef4444';
+                    c.fillStyle = '#dc2626';
                     c.shadowColor = '#ef4444';
-                    c.shadowBlur = 8;
+                    c.shadowBlur = 6;
                 }
 
                 c.fill();
@@ -449,7 +451,7 @@
             });
         }
 
-        // Resize Canvas & Adjust Layout Geometry
+        // Resize Canvas & Adjust Layout Geometry according to ACDC_2.jpg
         function resizeCanvases() {
             const dpr = window.devicePixelRatio || 1;
 
@@ -473,24 +475,27 @@
             scopeCtx.setTransform(1, 0, 0, 1, 0, 0);
             scopeCtx.scale(dpr, dpr);
 
-            // Calculate layout nodes based on current dimensions
+            // Calculate exact proportions matching ACDC_2.jpg schematic
             layout = {
                 width: cWidth,
                 height: cHeight,
 
-                usbX: cWidth * 0.08,
-                usbY: cHeight * 0.20,
-                usbW: cWidth * 0.12,
-                usbH: cHeight * 0.55,
+                usbX: cWidth * 0.12,
+                usbY: cHeight * 0.18,
+                usbW: cWidth * 0.08,
+                usbH: cHeight * 0.58,
 
                 wireY: cHeight * 0.38,
-                junctionX: cWidth * 0.52,
-                outputX: cWidth * 0.86,
-                outputY: cHeight * 0.38,
+                junctionX: cWidth * 0.50,
 
-                capTopY: cHeight * 0.56,
-                capBotY: cHeight * 0.65,
-                gndY: cHeight * 0.82
+                icX: cWidth * 0.72,
+                icY: cHeight * 0.15,
+                icW: cWidth * 0.18,
+                icH: cHeight * 0.62,
+
+                capTopY: cHeight * 0.54,
+                capBotY: cHeight * 0.64,
+                gndY: cHeight * 0.80
             };
         }
 
@@ -516,15 +521,19 @@
             }
         }
 
-        // Circuit Canvas Rendering
+        // Circuit Canvas Rendering (Clean White Schematic Sheet Style matching ACDC_2.jpg)
         function drawCircuit() {
             const w = layout.width;
             const h = layout.height;
 
             ctx.clearRect(0, 0, w, h);
 
-            // 1. Grid Background
-            ctx.strokeStyle = '#1e293b';
+            // 1. Light Tech Canvas Background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, w, h);
+
+            // Faint Grid lines
+            ctx.strokeStyle = '#f1f5f9';
             ctx.lineWidth = 1;
             const gridSize = 24;
             for (let x = 0; x < w; x += gridSize) {
@@ -540,99 +549,108 @@
                 ctx.stroke();
             }
 
-            // 2. Main Blue Wire Trace
+            // 2. Blue Main Power Wire Trace with Arrowhead pointing to Charging IC VBus
             ctx.save();
             ctx.strokeStyle = '#2563eb';
-            ctx.lineWidth = 4;
-            ctx.shadowColor = 'rgba(37, 99, 235, 0.4)';
-            ctx.shadowBlur = 6;
+            ctx.lineWidth = 3.5;
 
             // Main horizontal line
             ctx.beginPath();
             ctx.moveTo(layout.usbX + layout.usbW, layout.wireY);
-            ctx.lineTo(layout.outputX, layout.wireY);
+            ctx.lineTo(layout.icX, layout.wireY);
             ctx.stroke();
 
-            // Vertical branch to Cap & GND
+            // Arrowhead at Charging IC VBus entrance
+            const arrowSize = 9;
+            ctx.fillStyle = '#2563eb';
+            ctx.beginPath();
+            ctx.moveTo(layout.icX, layout.wireY);
+            ctx.lineTo(layout.icX - arrowSize, layout.wireY - arrowSize * 0.6);
+            ctx.lineTo(layout.icX - arrowSize, layout.wireY + arrowSize * 0.6);
+            ctx.closePath();
+            ctx.fill();
+
+            // Vertical wire branch to Capacitor & Ground
             ctx.beginPath();
             ctx.moveTo(layout.junctionX, layout.wireY);
-            ctx.lineTo(layout.junctionX, isCapacitorConnected ? layout.gndY : layout.capTopY - 12);
+            ctx.lineTo(layout.junctionX, isCapacitorConnected ? layout.gndY : layout.capTopY - 10);
             ctx.stroke();
             ctx.restore();
 
-            // T-Junction Node
+            // T-Junction Node Dot
             ctx.beginPath();
-            ctx.arc(layout.junctionX, layout.wireY, 5.5, 0, Math.PI * 2);
-            ctx.fillStyle = '#60a5fa';
+            ctx.arc(layout.junctionX, layout.wireY, 4.5, 0, Math.PI * 2);
+            ctx.fillStyle = '#1d4ed8';
             ctx.fill();
 
-            // 3. Draw USB Connector (Left Side - Vertical Rectangle)
+            // 3. USB Connector (Left Side - Rounded Blue Vertical Box)
             ctx.save();
             const uX = layout.usbX;
             const uY = layout.usbY;
             const uW = layout.usbW;
             const uH = layout.usbH;
 
-            // USB outer shell
-            ctx.fillStyle = '#2563eb';
-            ctx.strokeStyle = '#60a5fa';
-            ctx.lineWidth = 2.5;
-            drawRoundRect(ctx, uX, uY, uW, uH, 10);
+            // Rounded Blue Box matching diagram
+            ctx.fillStyle = '#3b82f6';
+            ctx.strokeStyle = '#1d4ed8';
+            ctx.lineWidth = 2;
+            drawRoundRect(ctx, uX, uY, uW, uH, 12);
             ctx.fill();
             ctx.stroke();
 
-            // USB inner inset
-            ctx.fillStyle = '#1d4ed8';
-            drawRoundRect(ctx, uX + 4, uY + 8, uW - 8, uH - 16, 6);
-            ctx.fill();
-
-            // USB Text Labels
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 13px Inter, Padauk, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('USB', uX + uW / 2, uY + uH / 2 - 4);
-            ctx.font = '10px Inter, Padauk, sans-serif';
-            ctx.fillStyle = '#bfdbfe';
-            ctx.fillText('Connector', uX + uW / 2, uY + uH / 2 + 12);
-
-            // Red Voltage Label near Exit
-            ctx.fillStyle = '#ef4444';
-            ctx.font = 'bold 14px Inter, sans-serif';
-            ctx.textAlign = 'left';
-            let vinLabel = (currentMode === 'dc') ? '5.1 V' : (currentMode === 'ac' ? 'AC Noise' : '5.1V + AC');
-            ctx.fillText(vinLabel, uX + uW + 8, layout.wireY - 12);
-            ctx.restore();
-
-            // 4. Output Node Circle (Right Side)
-            ctx.save();
-            ctx.beginPath();
-            ctx.arc(layout.outputX, layout.outputY, 9, 0, Math.PI * 2);
-            ctx.fillStyle = '#2563eb';
-            ctx.strokeStyle = '#93c5fd';
-            ctx.lineWidth = 2.5;
-            ctx.fill();
-            ctx.stroke();
-
-            // Output Voltage Label (Purple 5.1V)
-            ctx.fillStyle = '#a855f7';
+            // Red Text "5.1 V" above the trace line leaving USB Connector
+            ctx.fillStyle = '#dc2626';
             ctx.font = 'bold 16px Inter, sans-serif';
             ctx.textAlign = 'left';
-            ctx.fillText('5.1V', layout.outputX + 14, layout.outputY + 5);
+            ctx.fillText('5.1 V', uX + uW + 10, layout.wireY - 10);
 
-            // Output Signal Quality Status
-            ctx.font = '11px Padauk, sans-serif';
-            let outQualityText = "DC 5.1V အပြည့်ထွက်သည်";
-            let outColor = "#10b981";
-
-            if (!isCapacitorConnected && (currentMode === 'ac' || currentMode === 'combined')) {
-                outQualityText = "⚠️ AC Ripple နွိုက်စ် ပါလာသည်!";
-                outColor = "#ef4444";
-            }
-            ctx.fillStyle = outColor;
-            ctx.fillText(outQualityText, layout.outputX - 20, layout.outputY + 30);
+            // Red Label "USB Connector" under the USB block
+            ctx.fillStyle = '#dc2626';
+            ctx.font = 'bold 15px Inter, Padauk, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('USB Connector', uX + uW / 2, uY + uH + 28);
             ctx.restore();
 
-            // 5. Capacitor Component Symbol
+            // 4. Charging IC (Right Side - Large Rounded Red Box)
+            ctx.save();
+            const icX = layout.icX;
+            const icY = layout.icY;
+            const icW = layout.icW;
+            const icH = layout.icH;
+
+            // Red IC Box matching diagram
+            ctx.fillStyle = (!isCapacitorConnected && (currentMode === 'ac' || currentMode === 'combined')) ? '#b91c1c' : '#ef4444';
+            ctx.strokeStyle = '#991b1b';
+            ctx.lineWidth = 2.5;
+            drawRoundRect(ctx, icX, icY, icW, icH, 20);
+            ctx.fill();
+            ctx.stroke();
+
+            // Bold White "VBus" text inside the left edge of the Red IC Box
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 18px Inter, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('VBus', icX + 12, layout.wireY + 6);
+
+            // Red Label "Charging IC" under the Red IC Box
+            ctx.fillStyle = '#dc2626';
+            ctx.font = 'bold 16px Inter, Padauk, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Charging IC', icX + icW / 2, icY + icH + 30);
+
+            // IC VBus Protection Warning indicator if Cap is disconnected
+            if (!isCapacitorConnected && (currentMode === 'ac' || currentMode === 'combined')) {
+                ctx.fillStyle = '#fef08a';
+                ctx.font = 'bold 11px Padauk, sans-serif';
+                ctx.fillText('⚠️ AC Ripple Intrusion!', icX + icW / 2, icY + 24);
+            } else {
+                ctx.fillStyle = '#dcfce7';
+                ctx.font = 'bold 11px Padauk, sans-serif';
+                ctx.fillText('✓ 5.1V Clean DC', icX + icW / 2, icY + 24);
+            }
+            ctx.restore();
+
+            // 5. Capacitor Component Symbol (Black Plates matching schematic)
             drawCapacitorSymbol(ctx);
 
             // 6. Ground Symbol (GND)
@@ -646,7 +664,7 @@
             const cx = layout.junctionX;
             const topY = layout.capTopY;
             const botY = layout.capBotY;
-            const plateW = 32;
+            const plateW = 34;
 
             if (!isCapacitorConnected) {
                 // Capacitor Removed Marker
@@ -655,28 +673,28 @@
                 c.lineWidth = 1.5;
                 c.setLineDash([4, 4]);
                 c.beginPath();
-                c.rect(cx - 20, topY - 10, 40, botY - topY + 20);
+                c.rect(cx - 20, topY - 8, 40, botY - topY + 16);
                 c.stroke();
 
                 c.fillStyle = '#ef4444';
                 c.font = 'bold 11px Padauk, sans-serif';
                 c.textAlign = 'left';
-                c.fillText('ဖြုတ်ထားသည် (Removed)', cx + 26, (topY + botY) / 2 + 4);
+                c.fillText('ဖြုတ်ထားသည် (Open)', cx + 24, (topY + botY) / 2 + 4);
                 c.restore();
                 return;
             }
 
             c.save();
 
-            // Top Plate
-            c.strokeStyle = '#f8fafc';
-            c.lineWidth = 4;
+            // Top Parallel Plate (Black)
+            c.strokeStyle = '#0f172a';
+            c.lineWidth = 4.5;
             c.beginPath();
             c.moveTo(cx - plateW / 2, topY);
             c.lineTo(cx + plateW / 2, topY);
             c.stroke();
 
-            // Bottom Plate
+            // Bottom Parallel Plate (Black)
             c.beginPath();
             c.moveTo(cx - plateW / 2, botY);
             c.lineTo(cx + plateW / 2, botY);
@@ -688,23 +706,23 @@
                 gapGrad.addColorStop(0, 'rgba(239, 68, 68, 0.4)');
                 gapGrad.addColorStop(1, 'rgba(239, 68, 68, 0.05)');
             } else {
-                gapGrad.addColorStop(0, 'rgba(6, 182, 212, 0.2)');
-                gapGrad.addColorStop(1, 'rgba(6, 182, 212, 0.02)');
+                gapGrad.addColorStop(0, 'rgba(2, 132, 199, 0.25)');
+                gapGrad.addColorStop(1, 'rgba(2, 132, 199, 0.02)');
             }
             c.fillStyle = gapGrad;
             c.fillRect(cx - plateW / 2, topY + 2, plateW, botY - topY - 4);
 
             // Component Label
-            c.fillStyle = '#38bdf8';
-            c.font = 'bold 12px Inter, sans-serif';
+            c.fillStyle = '#0f172a';
+            c.font = 'bold 13px Inter, sans-serif';
             c.textAlign = 'left';
             c.fillText('C (10µF)', cx + plateW / 2 + 10, (topY + botY) / 2 - 2);
             c.font = '10px Padauk, sans-serif';
-            c.fillStyle = '#94a3b8';
+            c.fillStyle = '#64748b';
             c.fillText('Bypass Cap', cx + plateW / 2 + 10, (topY + botY) / 2 + 12);
 
-            // DC Blocking Status Text
-            c.fillStyle = '#f59e0b';
+            // DC Blocking Indicator
+            c.fillStyle = '#d97706';
             c.font = 'bold 10px Padauk, sans-serif';
             c.textAlign = 'right';
             c.fillText('DC ဘလောက်တားသည် ⛔', cx - plateW / 2 - 8, (topY + botY) / 2 + 3);
@@ -717,7 +735,7 @@
             const gx = layout.junctionX;
             const gy = layout.gndY;
 
-            c.strokeStyle = '#94a3b8';
+            c.strokeStyle = '#0f172a';
             c.lineWidth = 2.5;
 
             // 3 Horizontal lines of GND
@@ -733,7 +751,7 @@
             c.stroke();
 
             // GND Text Label
-            c.fillStyle = '#cbd5e1';
+            c.fillStyle = '#334155';
             c.font = 'bold 12px Inter, Padauk, sans-serif';
             c.textAlign = 'center';
             c.fillText('GND (0V)', gx, gy + 24);
@@ -756,14 +774,14 @@
 
                 c.save();
                 c.globalAlpha = p.alpha;
-                c.fillStyle = '#06b6d4';
+                c.fillStyle = '#0284c7';
                 c.beginPath();
                 c.arc(p.x, p.y, 3, 0, Math.PI * 2);
                 c.fill();
 
                 // Small X mark to show blocked status
                 if (p.y >= layout.capTopY - 4) {
-                    c.strokeStyle = '#ef4444';
+                    c.strokeStyle = '#dc2626';
                     c.lineWidth = 1.5;
                     c.beginPath();
                     c.moveTo(p.x - 4, p.y - 4);
@@ -831,9 +849,9 @@
                 let vout = baseV;
 
                 if (!isCapacitorConnected && (currentMode === 'ac' || currentMode === 'combined')) {
-                    vout = vin; // Noise leaks to output when cap removed
+                    vout = vin; // Noise leaks directly into Charging IC VBus pin!
                 } else if (currentMode === 'ac' && isCapacitorConnected) {
-                    vout = 0; // AC filtered out
+                    vout = 0; // AC noise bypassed to GND
                 }
 
                 scopeBuffer.push({ vin: vin, vout: vout });
@@ -852,7 +870,7 @@
             const centerY = h * 0.55;
             const scaleY = h * 0.08;
 
-            // Draw Input Waveform (Amber)
+            // Draw CH1: USB Input Waveform (Amber)
             scopeCtx.save();
             scopeCtx.strokeStyle = '#f59e0b';
             scopeCtx.lineWidth = 2;
@@ -867,7 +885,7 @@
             scopeCtx.stroke();
             scopeCtx.restore();
 
-            // Draw Output Waveform (Cyan / Red if noisy)
+            // Draw CH2: Charging IC VBus Pin Waveform (Cyan / Red if noisy)
             scopeCtx.save();
             scopeCtx.strokeStyle = isCapacitorConnected ? '#06b6d4' : '#ef4444';
             scopeCtx.lineWidth = 2.5;
@@ -926,9 +944,9 @@
             btnComb.className = (mode === 'combined') ? activeClass : inactiveClass;
 
             const headerVIn = document.getElementById('headerVIn');
-            if (mode === 'dc') headerVIn.innerText = "5.10 V (DC)";
+            if (mode === 'dc') headerVIn.innerText = "5.10 V Clean DC";
             else if (mode === 'ac') headerVIn.innerText = "±0.80 V (AC Ripple)";
-            else headerVIn.innerText = "5.10 V + AC Noise";
+            else headerVIn.innerText = "5.10V DC + AC Noise";
         }
 
         function togglePlay() {
